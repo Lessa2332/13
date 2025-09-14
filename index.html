@@ -1,136 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Ghost Animation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ AR Logo на маркері ✨</title>
 
-    <!-- A-Frame -->
-    <script src="https://cdn.jsdelivr.net/npm/aframe@1.6.0/dist/aframe-master.min.js"></script>
-    <!-- AR.js з підтримкою NFT -->
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+        <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
-    <!-- Аніматор привида -->
-    <script>
-        window.onload = function() {
-            AFRAME.registerComponent('ghost-animator', {
-                schema: {
-                    interval: { type: 'number', default: 150 } // швидкість анімації в мс
-                },
-                init: function () {
-                    this.marker = this.el;
-                    this.imageEl = this.marker.querySelector('a-image');
-                    this.frames = [
-                        '#frame1', '#frame2', '#frame3', '#frame4',
-                        '#frame5', '#frame6', '#frame7', '#frame8'
-                    ];
-                    this.currentFrame = 0;
-                    this.isPlaying = false;
-                    this.intervalId = null;
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
 
-                    this.marker.addEventListener('markerFound', () => {
-                        this.startAnimation();
-                    });
+        /* Стилі для лоадера */
+        .arjs-loader {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5em;
+            text-align: center;
+        }
 
-                    this.marker.addEventListener('markerLost', () => {
-                        this.stopAnimation();
-                    });
-                },
-                startAnimation: function() {
-                    if (this.isPlaying) return;
-                    this.isPlaying = true;
-                    this.currentFrame = 0;
-                    this.imageEl.setAttribute('src', this.frames[0]);
+        #smartLessaBtn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #ff0044, #ff6600);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 1000; /* Вище, ніж лоадер */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            transition: all 0.2s ease;
+        }
+        #smartLessaBtn:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
 
-                    this.intervalId = setInterval(() => {
-                        this.currentFrame = (this.currentFrame + 1) % this.frames.length;
-                        this.imageEl.setAttribute('src', this.frames[this.currentFrame]);
-                    }, this.data.interval);
-                },
-                stopAnimation: function() {
-                    if (!this.isPlaying) return;
-                    this.isPlaying = false;
-                    clearInterval(this.intervalId);
-                    this.imageEl.setAttribute('src', this.frames[0]); // повертаємося до першого кадру
-                },
-                remove: function() {
-                    clearInterval(this.intervalId);
-                }
-            });
-        };
-    </script>
-
-    <!-- Стилі для лоадера -->
-    <style>
-        .arjs-loader {
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .arjs-loader div {
-            text-align: center;
-            font-size: 1.25em;
-            color: white;
-        }
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
-    </style>
+    </style>
 </head>
 <body>
-    <!-- Лоадер -->
-    <div class="arjs-loader">
-        <div>Loading, please wait...</div>
-    </div>
+    <div class="arjs-loader">
+        <div>Завантаження AR... <br> 🪄 Наведіть камеру на ваш маркер!</div>
+    </div>
 
-    <!-- AR сцена -->
-    <a-scene
-        vr-mode-ui="enabled: false"
-        renderer="antialias: true; alpha: true; precision: medium;"
-        embedded
-        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
-    >
-        <!-- Завантаження кадрів анімації -->
-        <a-assets>
-            <!-- Заміни шляхи на свої PNG-файли -->
-            <img id="frame1" src="assets/ghost/1.png" crossorigin="anonymous">
-            <img id="frame2" src="assets/ghost/2.png" crossorigin="anonymous">
-            <img id="frame3" src="assets/ghost/3.png" crossorigin="anonymous">
-            <img id="frame4" src="assets/ghost/4.png" crossorigin="anonymous">
-            <img id="frame5" src="assets/ghost/5.png" crossorigin="anonymous">
-            <img id="frame6" src="assets/ghost/6.png" crossorigin="anonymous">
-            <img id="frame7" src="assets/ghost/7.png" crossorigin="anonymous">
-            <img id="frame8" src="assets/ghost/8.png" crossorigin="anonymous">
-        </a-assets>
+    <a-scene
+        mindar-image="imageTargetSrc: ./targets.mind;" /* Вказуємо на ваш скомпільований маркер */
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false"
+        loading-screen="enabled: false"
+        embedded
+        renderer="colorManagement: true; physicallyCorrectLights: true;"
+    >
+        <a-assets>
+                        <img id="logo-img" src="./logo.png" crossorigin="anonymous">
+        </a-assets>
 
-        <!-- NFT маркер -->
-        <!-- Заміни 'dataNFT/ghost_marker/ghost_marker' на шлях до твого NFT-маркера -->
-        <a-nft
-            ghost-animator="interval: 120"
-            type="nft"
-            url="dataNFT/ghost_marker/ghost_marker"
-            smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5"
-        >
-            <!-- Зображення, що анімується -->
-            <a-image
-                src="#frame1"
-                position="50 150 -100"
-                rotation="90 0 180"
-                width="300"
-                height="175"
-            ></a-image>
-        </a-nft>
+        <a-camera
+            look-controls="enabled: false"
+            position="0 0 0"
+        ></a-camera>
 
-        <!-- Камера -->
-        <a-entity camera></a-entity>
-    </a-scene>
+                <a-entity mindar-image-target="targetIndex: 0">
+            <a-image
+                src="#logo-img"  /* Посилаємося на завантажене зображення */
+                position="0 0 0.1" /* Піднято трохи вгору, щоб не перекривати маркер */
+                scale="1 1 1"     /* Масштаб зображення */
+            ></a-image>
+        </a-entity>
+    </a-scene>
+
+    <a href="https://youtube.com/playlist?list=PL6UDFwT9TzFxsVdFiEBsQ9yFpcYRPOpfO&si=IyXv1SkPytvhcW7Z"
+     id="smartLessaBtn" target="_blank">👉 Дивись більше на @SmartLessa</a>
+
+    <script>
+        // Приховує лоадер, коли сцена MindAR готова до відстеження
+        const scene = document.querySelector('a-scene');
+        scene.addEventListener('mindar-image-started', () => {
+            console.log("MindAR started, hiding loader");
+            const loader = document.querySelector('.arjs-loader');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
