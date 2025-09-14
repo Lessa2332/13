@@ -13,7 +13,6 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
             overflow: hidden;
         }
 
@@ -91,9 +90,9 @@
         <a-entity mindar-image-target="targetIndex: 0">
             <a-image
                 src="#logo-img"
-                position="0 0 0.1" 
-                scale="2 2 2"   /* Збільшений масштаб */
-                look-at="[camera]" /* Завжди дивиться на камеру */
+                position="0 0 0.05" 
+                rotation="-90 0 0" /* Тепер зображення лежить паралельно */
+                scale="2 2 2"  
             ></a-image>
         </a-entity>
     </a-scene>
@@ -102,6 +101,13 @@
      id="smartLessaBtn" target="_blank">👉 Дивись більше на @SmartLessa</a>
 
     <script>
+        // Вирішуємо проблему з висотою вікна на мобільних пристроях
+        function fixHeight() {
+            document.body.style.height = window.innerHeight + 'px';
+        }
+        fixHeight();
+        window.addEventListener('resize', fixHeight);
+
         const scene = document.querySelector('a-scene');
         scene.addEventListener('mindar-image-started', () => {
             const loader = document.querySelector('.arjs-loader');
