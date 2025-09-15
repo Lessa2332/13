@@ -122,19 +122,33 @@
         const playBtn = document.querySelector('#playBtn');
         const youtubeBtn = document.querySelector('#youtubeBtn');
 
-        // Коли маркер знайдено, ховаємо лоадер і показуємо кнопки
+        // Додаємо обробник подій для кнопки "Грати"
+        playBtn.addEventListener('click', function () {
+            alert('Кнопка "Грати" натиснута!');
+            // Тут ви можете додати логіку для початку вашої гри
+        });
+        
+        // Коли MindAR-сцена готова
+        document.querySelector('a-scene').addEventListener('mindar-image-started', () => {
+            console.log('MindAR-сцена готова.');
+        });
+
+        // Коли маркер знайдено
         targetEntity.addEventListener('targetFound', function () {
+            console.log('Маркер знайдено!');
             loader.style.display = 'none';
             playBtn.style.display = 'block';
             youtubeBtn.style.display = 'block';
         });
 
-        // Коли маркер втрачено, ховаємо кнопки
+        // Коли маркер втрачено
         targetEntity.addEventListener('targetLost', function () {
+            console.log('Маркер втрачено.');
             playBtn.style.display = 'none';
             youtubeBtn.style.display = 'none';
         });
     </script>
 </body>
 </html>
+
 
