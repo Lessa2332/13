@@ -54,7 +54,7 @@
             transition: all 0.2s ease;
             cursor: pointer;
             border: none;
-            display: none; /* Спочатку ховаємо кнопки */
+            display: none;
         }
         .ui-btn:hover {
             transform: translateX(-50%) scale(1.05);
@@ -69,6 +69,11 @@
             background: linear-gradient(45deg, #ff0044, #ff6600);
             color: white;
             text-align: center;
+        }
+        #resetBtn {
+            bottom: 40px;
+            background: linear-gradient(45deg, #FF5733, #e64a19);
+            color: white;
         }
     </style>
 </head>
@@ -92,63 +97,149 @@
         <a-camera
             look-controls="enabled: false"
             position="0 0 0"
-        ></a-camera>
+        >
+            <a-cursor
+                raycaster="objects: .choice-box;"
+                cursor="fuse: true; maxDistance: 30; timeout: 500"
+                position="0 0 -1"
+                geometry="primitive: ring; radiusOuter: 0.01; radiusInner: 0.005"
+                material="color: #FFFFFF; shader: flat"
+            ></a-cursor>
+        </a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
             <a-image
+                id="logo-image"
                 src="#logo-img"
                 position="0 0 0.05"
                 rotation="45 0 0"
                 scale="3 3 3"
             ></a-image>
+
+            <a-entity id="game-elements" visible="false">
+                <a-text
+                    id="question-text"
+                    value=""
+                    position="0 0.8 0"
+                    align="center"
+                    width="1.8"
+                    color="#FFFFFF"
+                    font="https://cdn.aframe.io/fonts/DejaVuSansMono-Bold.fnt"
+                ></a-text>
+                <a-box id="red-box" class="choice-box" color="#FF0000" position="-0.5 0.2 0" scale="0.2 0.2 0.2"></a-box>
+                <a-box id="blue-box" class="choice-box" color="#0000FF" position="0 0.2 0" scale="0.2 0.2 0.2"></a-box>
+                <a-box id="green-box" class="choice-box" color="#00FF00" position="0.5 0.2 0" scale="0.2 0.2 0.2"></a-box>
+            </a-entity>
         </a-entity>
     </a-scene>
 
     <button id="playBtn" class="ui-btn">▶️ Грати</button>
+    <button id="resetBtn" class="ui-btn">🔄 Повернутися</button>
     <a href="https://youtube.com/playlist?list=PL6UDFwT9TzFxsVdFiEBsQ9yFpcYRPOpfO&si=IyXv1SkdPyvhcW7Z"
        id="youtubeBtn" class="ui-btn" target="_blank">👉 Дивись більше</a>
 
     <script>
-        // Вирішуємо проблему з висотою вікна на мобільних пристроях
         function fixHeight() {
             document.body.style.height = window.innerHeight + 'px';
         }
         fixHeight();
         window.addEventListener('resize', fixHeight);
 
-        // Отримання посилань на елементи
         const loader = document.querySelector('.arjs-loader');
         const targetEntity = document.querySelector('a-entity[mindar-image-target]');
+        const logoImage = document.querySelector('#logo-image');
         const playBtn = document.querySelector('#playBtn');
+        const resetBtn = document.querySelector('#resetBtn');
         const youtubeBtn = document.querySelector('#youtubeBtn');
+        const gameElements = document.querySelector('#game-elements');
+        const questionText = document.querySelector('#question-text');
 
-        // Додаємо обробник подій для кнопки "Грати"
-        playBtn.addEventListener('click', function () {
-            alert('Кнопка "Грати" натиснута!');
-            // Тут ви можете додати логіку для початку вашої гри
-        });
-        
-        // Коли MindAR-сцена готова
-        document.querySelector('a-scene').addEventListener('mindar-image-started', () => {
-            console.log('MindAR-сцена готова.');
-        });
+        let currentQuestionIndex = 0;
+        const questions = [
+            { text: "Обери червоний:", correct: "red-box" },
+            { text: "Обери синій:", correct: "blue-box" },
+            { text: "Обери зелений:", correct: "green-box" }
+        ];
 
         // Коли маркер знайдено
         targetEntity.addEventListener('targetFound', function () {
-            console.log('Маркер знайдено!');
             loader.style.display = 'none';
             playBtn.style.display = 'block';
             youtubeBtn.style.display = 'block';
+            logoImage.setAttribute('visible', 'true');
         });
 
         // Коли маркер втрачено
         targetEntity.addEventListener('targetLost', function () {
-            console.log('Маркер втрачено.');
+            playBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
+            youtubeBtn.style.display = 'none';
+            logoImage.setAttribute('visible', 'true');
+            gameElements.setAttribute('visible', 'false');
+            currentQuestionIndex = 0;
+        });
+
+        // Обробка натискання кнопки "Грати"
+        playBtn.addEventListener('click', function () {
             playBtn.style.display = 'none';
             youtubeBtn.style.display = 'none';
+            startGame();
+        });
+
+        // Обробка натискання кнопки "Повернутися"
+        resetBtn.addEventListener('click', function () {
+            resetBtn.style.display = 'none';
+            playBtn.style.display = 'block';
+            youtubeBtn.style.display = 'block';
+            gameElements.setAttribute('visible', 'false');
+            logoImage.setAttribute('visible', 'true');
+            currentQuestionIndex = 0;
+        });
+
+        function startGame() {
+            logoImage.setAttribute('visible', 'false');
+            gameElements.setAttribute('visible', 'true');
+            loadQuestion(0);
+        }
+
+        function loadQuestion(index) {
+            if (index >= questions.length) {
+                questionText.setAttribute('value', "🎉 Усі питання пройдені!");
+                setTimeout(() => {
+                    questionText.setAttribute('value', "");
+                    gameElements.setAttribute('visible', 'false');
+                    resetBtn.style.display = 'block';
+                }, 2000);
+                return;
+            }
+
+            currentQuestionIndex = index;
+            const currentQuestion = questions[currentQuestionIndex];
+            questionText.setAttribute('value', currentQuestion.text);
+
+            document.querySelectorAll('.choice-box').forEach(box => {
+                const originalColor = box.id.split('-')[0];
+                box.setAttribute('color', `#${originalColor === 'red' ? 'FF0000' : originalColor === 'blue' ? '0000FF' : '00FF00'}`);
+            });
+        }
+
+        document.querySelectorAll('.choice-box').forEach(box => {
+            box.addEventListener('click', function () {
+                const selectedBoxId = this.id;
+                const currentQuestion = questions[currentQuestionIndex];
+                const isCorrect = selectedBoxId === currentQuestion.correct;
+
+                if (isCorrect) {
+                    questionText.setAttribute('value', "✅ Правильно!");
+                    this.setAttribute('color', '#FFD700');
+                    setTimeout(() => {
+                        loadQuestion(currentQuestionIndex + 1);
+                    }, 1500);
+                } else {
+                    questionText.setAttribute('value', "❌ Спробуй ще раз!");
+                }
+            });
         });
     </script>
 </body>
 </html>
-
-
